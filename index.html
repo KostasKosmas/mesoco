@@ -609,7 +609,10 @@
       </div>
 
       <!-- Form sends to your email via mailto + Formspree fallback instructions -->
-      <form id="contactForm">
+      <form id="contactForm" name="contact" netlify netlify-honeypot="bot-field">
+        <input type="hidden" name="form-name" value="contact">
+        <input type="hidden" name="_subject" value="New MESOCO Enquiry">
+        <p style="display:none"><input name="bot-field"></p>
         <div class="frow">
           <div class="ff"><label>Name *</label><input type="text" name="name" placeholder="Your name" required></div>
           <div class="ff"><label>Company</label><input type="text" name="company" placeholder="Company name"></div>
@@ -688,7 +691,7 @@
     a.addEventListener('click', () => document.getElementById('navlinks').classList.remove('open'))
   );
 
-  // Contact form → Formspree (sends real email to info@mediterraneansourcingcompany.com)
+  // Netlify Forms handler
   document.getElementById('contactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const f = this;
@@ -698,21 +701,13 @@
     btn.textContent = 'Sending...';
     btn.disabled = true;
 
-    const data = {
-      name:     f.name.value,
-      company:  f.company.value,
-      _replyto: f.email.value,
-      email:    f.email.value,
-      category: f.category.value,
-      message:  f.message.value,
-      _subject: 'MESOCO Enquiry — ' + (f.category.value || 'General') + ' — ' + f.name.value
-    };
+    const formData = new FormData(f);
 
     try {
-      const res = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+      const res = await fetch('/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(data)
+        headers: { 'Accept': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData).toString()
       });
 
       if (res.ok) {
@@ -727,27 +722,12 @@
           msg.style.display = 'none';
         }, 5000);
       } else {
-        throw new Error('Server error');
+        throw new Error('Failed');
       }
     } catch(err) {
-      // Fallback to mailto if Formspree not yet configured
-      const subject = encodeURIComponent('MESOCO Enquiry — ' + (data.category || 'General') + ' — ' + data.name);
-      const body = encodeURIComponent(
-        'Name: ' + data.name + '
-' +
-        'Company: ' + (data.company || '—') + '
-' +
-        'Reply to: ' + data.email + '
-' +
-        'Category: ' + (data.category || '—') + '
-
-' +
-        'Message:
-' + (data.message || '—')
-      );
-      window.location.href = 'mailto:info@mediterraneansourcingcompany.com?subject=' + subject + '&body=' + body;
       btn.textContent = 'Send Message →';
       btn.disabled = false;
+      alert('Something went wrong. Please email us directly at info@mediterraneansourcingcompany.com');
     }
   });
 </script>
