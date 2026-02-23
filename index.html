@@ -609,7 +609,7 @@
       </div>
 
       <!-- Form sends to your email via mailto + Formspree fallback instructions -->
-      <form id="contactForm" name="contact" netlify netlify-honeypot="bot-field">
+      <form id="contactForm" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
         <input type="hidden" name="form-name" value="contact">
         <input type="hidden" name="_subject" value="New MESOCO Enquiry">
         <p style="display:none"><input name="bot-field"></p>
@@ -691,7 +691,7 @@
     a.addEventListener('click', () => document.getElementById('navlinks').classList.remove('open'))
   );
 
-  // Netlify Forms handler
+  // Netlify Forms - posts to current page URL
   document.getElementById('contactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const f = this;
@@ -704,9 +704,9 @@
     const formData = new FormData(f);
 
     try {
-      const res = await fetch('/', {
+      const res = await fetch(window.location.href, {
         method: 'POST',
-        headers: { 'Accept': 'application/x-www-form-urlencoded' },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
         body: new URLSearchParams(formData).toString()
       });
 
